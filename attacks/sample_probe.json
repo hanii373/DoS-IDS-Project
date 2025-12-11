@@ -1,0 +1,7 @@
+{
+  "src_bytes": 100,
+  "dst_bytes": 0,
+  "count": 80,
+  "srv_count": 20,
+  "dst_host_count": 50
+}

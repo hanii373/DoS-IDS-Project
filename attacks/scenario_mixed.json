@@ -1,0 +1,6 @@
+[
+  { "src_bytes": 200, "dst_bytes": 300, "count": 10 },
+  { "src_bytes": 100, "dst_bytes": 0, "count": 75 },  
+  { "src_bytes": 6000, "dst_bytes": 1, "count": 120 }, 
+  { "src_bytes": 3500, "dst_bytes": 1, "count": 10 }
+]
