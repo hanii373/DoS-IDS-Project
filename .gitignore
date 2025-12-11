@@ -1,8 +1,4 @@
+data/*.csv
+data/*.txt
+*.log
 venv/
-__pycache__/
-*.pyc
-logs/
-models/*.pt
-*.pkl
-*.joblib
-.DS_Store
