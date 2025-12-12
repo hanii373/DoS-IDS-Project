@@ -36,7 +36,9 @@ This project includes:
 
 DoS-IDS-Project/
 │
+
 ├── main.py # Main control panel
+
 ├── main_real.py # Real attack replay
 ├── README.md
 ├── models/ # Trained ML model & scaler
