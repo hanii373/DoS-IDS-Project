@@ -80,4 +80,24 @@ DoS-IDS-Project/
 ### 1. Activate virtual environment
 ```bash
 .venv\Scripts\activate
-### Start main control panel
+```
+### 2. Start main control panel
+```bash
+python main.py
+```
+### 3. Run Dashboard (direct)
+```bash
+streamlit run src/dashboard/app.py
+```
+---
+
+### Requirements
+-Python 3.10+
+-scikit-learn
+-pandas
+-numpy
+-scapy
+-streamlit
+-plyer
+-joblib
+-Npcap (Windows)
