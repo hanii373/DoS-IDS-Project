@@ -25,13 +25,13 @@ def preprocess():
     print("📥 Loading dataset...")
     df = pd.read_csv("data/KDDTrain+.txt", names=column_names)
 
-    print("🔄 Mapping labels into {0=Normal, 1=DoS}...")
+    print(" Mapping labels into {0=Normal, 1=DoS}...")
     df["binary_label"] = df["label"].apply(lambda x: 1 if x in dos_attacks else 0)
 
-    print("🔠 Encoding categorical columns (one-hot)...")
+    print(" Encoding categorical columns (one-hot)...")
     df = pd.get_dummies(df, columns=["protocol_type", "service", "flag"])
 
-    print("📏 Scaling numeric columns...")
+    print(" Scaling numeric columns...")
     feature_cols = df.drop(["binary_label", "label", "difficulty_level"], axis=1).columns
 
     scaler = StandardScaler()
