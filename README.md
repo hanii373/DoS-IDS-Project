@@ -92,12 +92,12 @@ streamlit run src/dashboard/app.py
 ---
 
 ### Requirements
--Python 3.10+
--scikit-learn
--pandas
--numpy
--scapy
--streamlit
--plyer
--joblib
--Npcap (Windows)
+- Python 3.10+
+- scikit-learn
+- pandas
+- numpy
+- scapy
+- streamlit
+- plyer
+- joblib
+- Npcap (Windows)
