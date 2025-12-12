@@ -40,28 +40,51 @@ DoS-IDS-Project/
 ├── main.py # Main control panel
 
 ├── main_real.py # Real attack replay
+
 ├── README.md
+
 ├── models/ # Trained ML model & scaler
+
 │
+
 ├── src/
+
 │ ├── predictor.py # ML prediction logic
+
 │ ├── preprocess.py # Feature preprocessing
+
 │ ├── simulator.py # Traffic simulator (parallel)
+
 │ ├── sniffer.py # Live packet sniffer
+
 │ │
+
 │ ├── eventsystem/ # Event-driven architecture
+
 │ │ ├── events.py
+
 │ │ ├── logger.py
+
 │ │ ├── alerter.py
+
 │ │ ├── mitigator.py
+
 │ │ └── observers/
+
 │ │
+
 │ └── dashboard/
+
 │ └── app.py # Streamlit dashboard
+
 │
+
 ├── logs/
+
 │ └── alerts.log
+
 │
+
 └── attacks/ # Sample attack scenarios
 
 ---
