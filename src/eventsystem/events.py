@@ -1,9 +1,6 @@
-# events.py
-# Central event dispatcher for Observer Pattern
-
 class EventManager:
     def __init__(self):
-        self.subscribers = {}   # event_name → list of callbacks
+        self.subscribers = {} 
 
     def subscribe(self, event_name, callback):
         """Register an observer for an event."""
@@ -17,9 +14,5 @@ class EventManager:
             for callback in self.subscribers[event_name]:
                 callback(data)
 
-
-# --- DEBUG PRINT TO CONFIRM FILE IS LOADED ---
 print("DEBUG: events.py loaded — event_manager created.")
-
-# Global instance used throughout the IDS system
 event_manager = EventManager()

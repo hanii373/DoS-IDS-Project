@@ -1,6 +1,3 @@
-# observer.py
-# Base class for all observers
-
 class Observer:
     def on_event(self, data):
         """

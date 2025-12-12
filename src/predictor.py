@@ -1,82 +1,48 @@
-import sys
-import os
-
-# Add project/src folder to Python path
-sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
-
 import joblib
 import pandas as pd
-
+from preprocess import preprocess_features
 from eventsystem.events import event_manager
 from eventsystem.alerter import notify_attack
-  # <-- DIRECT POPUP HERE
 
-
-# ================================
-# Load scaler & model
-# ================================
 scaler = joblib.load("models/scaler.pkl")
-rf = joblib.load("models/baseline_model.joblib")
+model = joblib.load("models/baseline_model.joblib")
 
-# Make template available to simulator
 feature_template = scaler.feature_names_in_
 
 
-def predict_single(features: dict):
-    # Convert dict to DataFrame
-    df = pd.DataFrame([features])
+def predict_single(features):
+    X = preprocess_features(features)
 
-    # Ensure correct ordering of columns
-    df = df.reindex(columns=scaler.feature_names_in_, fill_value=0)
+    prob = model.predict_proba(X)[0][1]
 
-    # Scale inputs
-    df_scaled = scaler.transform(df)
+    if features["src_bytes"] > 4000 and features["count"] > 100:
+        attack_type = "DoS"
+        event_name = "dos_attack_detected"
 
-    # Predict
-    prob = rf.predict_proba(df_scaled)[0][1]
+    elif features["count"] > 60 and features["srv_count"] > 10:
+        attack_type = "Probe"
+        event_name = "probe_detected"
 
-    # Adjust threshold so your simulator actually triggers events
-    is_dos = (prob > 0.10)          # <--- IMPORTANT FIX
-    is_high_risk = (prob > 0.90)
+    elif prob > 0.15:
+        attack_type = "Anomaly"
+        event_name = "anomaly_detected"
 
-    # Pack result
+    else:
+        attack_type = "Normal"
+        event_name = None
+
     result = {
         "prob": prob,
-        "attack": is_dos,
+        "src_ip": features.get("src_ip", "unknown"),
+        "attack": attack_type != "Normal",
+        "type": attack_type,
         "features": features
     }
 
-    # ========================================================
-    #  EVENT 1: DoS Attack  +  POPUP NOTIFICATION
-    # ========================================================
-    if is_dos:
-        print("EVENT: DoS Attack")
+    if attack_type != "Normal":
+        notify_attack(prob, attack_type, result["src_ip"])
 
-        # 🔔 Force popup reliably (this ALWAYS works)
-        notify_attack(probability=prob, model="RandomForest")
+    if event_name:
+        event_manager.publish(event_name, result)
 
-        # Also publish event for logger + mitigator
-        event_manager.publish("dos_attack_detected", result)
-
-    # ========================================================
-    #  EVENT 2: High-risk attack
-    # ========================================================
-    if is_high_risk:
-        print("EVENT: HIGH RISK")
-        event_manager.publish("high_risk_detected", result)
-
-    # ========================================================
-    #  EVENT 3: Probe detection (small payload + many attempts)
-    # ========================================================
-    if features.get("dst_bytes", 0) < 20 and features.get("count", 0) > 50:
-        print("EVENT: PROBE")
-        event_manager.publish("probe_detected", result)
-
-    # ========================================================
-    #  EVENT 4: Anomaly detection
-    # ========================================================
-    if features.get("src_bytes", 0) > 3000 and features.get("dst_bytes", 0) < 5:
-        print("EVENT: ANOMALY")
-        event_manager.publish("anomaly_detected", result)
-
-    return result
+    return prob, attack_type

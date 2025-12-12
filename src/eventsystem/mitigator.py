@@ -1,6 +1,3 @@
-# mitigator.py
-# Automatically blocks attacker IP (Windows firewall example)
-
 from eventsystem.observer import Observer
 import subprocess
 
@@ -15,7 +12,6 @@ class Mitigator(Observer):
 
         print(f"🛡 Auto-Mitigation triggered: Blocking IP {src_ip}")
 
-        # Windows Firewall rule
         command = (
             f'netsh advfirewall firewall add rule '
             f'name="Block_{src_ip}" dir=in action=block remoteip={src_ip}'

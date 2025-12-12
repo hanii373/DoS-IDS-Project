@@ -8,14 +8,10 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-# --------------------------------------------------
-# LOAD CLEAN DATASET
-# --------------------------------------------------
 df = pd.read_csv("data/clean_train.csv")
 
 X_df = df.drop(["binary_label", "label", "difficulty_level"], axis=1)
 
-# Convert boolean columns to float
 X_df = X_df.astype("float32")
 
 X = X_df.values
@@ -23,9 +19,6 @@ y = df["binary_label"].values
 
 input_size = X.shape[1]
 
-# --------------------------------------------------
-# TRAIN/TEST SPLIT
-# --------------------------------------------------
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.25, random_state=42
 )
@@ -34,19 +27,13 @@ print("Dataset loaded successfully!")
 print("Training samples:", len(X_train))
 print("Testing samples:", len(X_test))
 print("Number of features:", input_size)
-
-# --------------------------------------------------
-# BASELINE MODEL — RANDOM FOREST
-# --------------------------------------------------
 print("\nTraining RandomForest model...")
 
 rf = RandomForestClassifier(n_estimators=150, random_state=42)
 rf.fit(X_train, y_train)
 
-# Save model
 joblib.dump(rf, "models/baseline_model.joblib")
 
-# Evaluate
 y_pred = rf.predict(X_test)
 
 print("\n📊 RandomForest Results:")
@@ -55,9 +42,6 @@ print("Precision:", precision_score(y_test, y_pred))
 print("Recall:", recall_score(y_test, y_pred))
 print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
 
-# --------------------------------------------------
-# PYTORCH MODEL — SIMPLE MLP
-# --------------------------------------------------
 class IDS_MLP(nn.Module):
     def __init__(self, input_dim):
         super(IDS_MLP, self).__init__()

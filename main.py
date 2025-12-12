@@ -1,93 +1,27 @@
-import os
-import subprocess
-import time
 import sys
-from pathlib import Path
+import os
+import time
+import subprocess
 
-# FIX: Add src folder to Python path
-sys.path.append(os.path.abspath("src"))
+# FIX PYTHON PATHS SO ALL MODULES LOAD CORRECTLY
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SRC_DIR = os.path.join(BASE_DIR, "src")
 
-# Observer system imports
+if SRC_DIR not in sys.path:
+    sys.path.insert(0, SRC_DIR)
+
+# IMPORT PROJECT MODULES
+from simulator import run_simulator_parallel
+from sniffer import start_sniffer
 from eventsystem.events import event_manager
 from eventsystem.logger import AttackLogger
 from eventsystem.alerter import Alerter
 from eventsystem.mitigator import Mitigator
-from eventsystem.observer import Observer
 from eventsystem.observer_probe import ProbeLogger
 from eventsystem.observer_anomaly import AnomalyLogger
 from eventsystem.observer_highrisk import HighRiskAlerter
+from predictor import scaler 
 
-
-# ============================================
-#  PATH SETUP
-# ============================================
-ROOT = Path(__file__).parent
-SRC_DIR = ROOT / "src"
-DASHBOARD = SRC_DIR / "dashboard" / "app.py"
-SIMULATOR = SRC_DIR / "simulator.py"
-LOG_DIR = ROOT / "logs"
-
-# ============================================
-#  ENVIRONMENT CHECK
-# ============================================
-def check_environment():
-    print("\n🔍 Checking environment...")
-
-    required_files = [
-        ROOT / "models" / "baseline_model.joblib",
-        ROOT / "models" / "ids_model.pt",
-        ROOT / "models" / "scaler.pkl",
-    ]
-
-    missing = [f for f in required_files if not f.exists()]
-    if missing:
-        print("❌ Missing model files:")
-        for f in missing:
-            print("   -", f.name)
-        print("\nRun train_models.py first.")
-        return False
-
-    print("✔ Models found")
-
-    if not LOG_DIR.exists():
-        LOG_DIR.mkdir()
-        print("✔ Created logs/ directory")
-
-    print("✔ Environment OK!\n")
-    return True
-
-
-# ============================================
-#  START DASHBOARD
-# ============================================
-def start_dashboard():
-    print("🚀 Launching Streamlit Dashboard...")
-    subprocess.Popen(f'streamlit run "{DASHBOARD}"', shell=True)
-
-
-# ============================================
-#  START SIMULATOR
-# ============================================
-def start_simulator():
-    print("🛰️ Starting Simulator...")
-    subprocess.Popen(f'python "{SIMULATOR}"', shell=True)
-
-
-# ============================================
-#  CLEAR LOGS
-# ============================================
-def clear_logs():
-    alert_file = LOG_DIR / "alerts.log"
-    if alert_file.exists():
-        alert_file.unlink()
-        print("🧹 Cleared alerts.log")
-    else:
-        print("ℹ No log file found.")
-
-
-# ============================================
-#  REGISTER OBSERVERS (OBSERVER PATTERN)
-# ============================================
 def register_observers():
     logger = AttackLogger()
     alerter = Alerter()
@@ -95,84 +29,67 @@ def register_observers():
 
     probe_logger = ProbeLogger()
     anomaly_logger = AnomalyLogger()
-    highrisk_alerter = HighRiskAlerter()
+    highrisk = HighRiskAlerter()
 
-    # DoS (Alerter, Logger, Mitigator)
     event_manager.subscribe("dos_attack_detected", logger.on_event)
     event_manager.subscribe("dos_attack_detected", alerter.on_event)
     event_manager.subscribe("dos_attack_detected", mitigator.on_event)
 
-    # Probe
     event_manager.subscribe("probe_detected", probe_logger.on_event)
-    event_manager.subscribe("probe_detected", alerter.on_event)   # <-- NEW
-
-    # Anomaly
     event_manager.subscribe("anomaly_detected", anomaly_logger.on_event)
-    event_manager.subscribe("anomaly_detected", alerter.on_event) # <-- NEW
+    event_manager.subscribe("high_risk_detected", highrisk.on_event)
 
-    # High Risk
-    event_manager.subscribe("high_risk_detected", highrisk_alerter.on_event)
-    event_manager.subscribe("high_risk_detected", alerter.on_event) # <-- NEW
+    print("\n🔔 Observers registered.\n")
 
-    print("🔔 All observers registered (DoS, Probe, Anomaly, High-Risk)")
+def start_dashboard():
+    print("▶ Launching dashboard (Streamlit)...")
+    subprocess.Popen(
+        ["streamlit", "run", "src/dashboard/app.py"],
+        shell=True
+    )
+    print("✔ Dashboard started at http://localhost:8501\n")
 
-
-
-
-# ============================================
-#  MENU DISPLAY
-# ============================================
-def menu():
-    print("""
-===========================================
-         IDS MAIN CONTROL PANEL
-===========================================
-
-1. Start Dashboard
-2. Start Simulator
-3. Start Both (Dashboard + Simulator)
-4. Clear Alerts Log
-5. Exit
-
-===========================================
-""")
-
-
-# ============================================
-#  MAIN FUNCTION
-# ============================================
 def main():
-    if not check_environment():
-        return
-
-    # Register Observers BEFORE starting anything
+    print("Scaler loaded for runtime preprocessing.")
     register_observers()
 
     while True:
-        menu()
+        print("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        print("           IDS MAIN CONTROL PANEL")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+        print("1. Run Parallel Simulator (3 seconds)")
+        print("2. Run Dashboard")
+        print("3. Run Simulator + Dashboard")
+        print("4. Start Real Network Sniffer")
+        print("5. Exit\n")
+
         choice = input("Choose an option: ").strip()
 
         if choice == "1":
-            start_dashboard()
+            print("\n🚀 Starting parallel simulator for 3 seconds...\n")
+            run_simulator_parallel(duration=5)
 
         elif choice == "2":
-            start_simulator()
+            start_dashboard()
 
         elif choice == "3":
             start_dashboard()
             time.sleep(2)
-            start_simulator()
+            run_simulator_parallel(duration=3)
 
         elif choice == "4":
-            clear_logs()
+            print("🛰️ Live packet sniffer started… Press CTRL+C to stop.")
+            try:
+                start_sniffer(duration=10)
+            except KeyboardInterrupt:
+                print("\n🛑 Sniffer stopped.\n")
 
         elif choice == "5":
-            print("Exiting IDS System...")
+            print("Exiting IDS system. Goodbye!")
             break
 
         else:
-            print("❌ Invalid choice. Try again.")
-
+            print("❌ Invalid choice, try again.")
 
 if __name__ == "__main__":
     main()

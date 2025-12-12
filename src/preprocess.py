@@ -2,7 +2,6 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 import joblib
 
-# Full column list (43 columns)
 column_names = [
     "duration","protocol_type","service","flag","src_bytes","dst_bytes",
     "land","wrong_fragment","urgent","hot","num_failed_logins",
@@ -17,35 +16,66 @@ column_names = [
     "label","difficulty_level"
 ]
 
-# DoS attack names
 dos_attacks = [
     "back","land","neptune","pod","smurf","teardrop",
     "apache2","udpstorm","processtable","mailbomb"
 ]
 
 def preprocess():
-    print("Loading dataset...")
+    print("📥 Loading dataset...")
     df = pd.read_csv("data/KDDTrain+.txt", names=column_names)
 
-    print("Mapping labels (DoS vs Normal)...")
+    print("🔄 Mapping labels into {0=Normal, 1=DoS}...")
     df["binary_label"] = df["label"].apply(lambda x: 1 if x in dos_attacks else 0)
 
-    print("Encoding categorical columns...")
+    print("🔠 Encoding categorical columns (one-hot)...")
     df = pd.get_dummies(df, columns=["protocol_type", "service", "flag"])
 
-    print("Scaling numeric columns...")
-
-    # Drop target columns BEFORE scaling
+    print("📏 Scaling numeric columns...")
     feature_cols = df.drop(["binary_label", "label", "difficulty_level"], axis=1).columns
 
     scaler = StandardScaler()
     df[feature_cols] = scaler.fit_transform(df[feature_cols])
 
-    print("Saving clean dataset...")
+    print("💾 Saving processed dataset & scaler...")
     df.to_csv("data/clean_train.csv", index=False)
     joblib.dump(scaler, "models/scaler.pkl")
 
     print("\n✅ Preprocessing complete!")
+
+try:
+    scaler = joblib.load("models/scaler.pkl")
+    print("Scaler loaded for runtime preprocessing.")
+except:
+    scaler = None
+    print("⚠ WARNING: Could not load scaler.pkl — realtime packets won't be scaled!")
+
+
+def preprocess_features(features: dict):
+    """
+    Convert ONE packet dict into the exact format used during training.
+    Ensures:
+      - Missing one-hot columns are added
+      - Column order matches scaler.feature_names_in_
+      - Scaler is applied
+    """
+    if scaler is None:
+        raise RuntimeError("scaler.pkl not loaded — cannot preprocess input packet!")
+
+    df = pd.DataFrame([features])
+
+    required_cols = scaler.feature_names_in_
+
+    for col in required_cols:
+        if col not in df.columns:
+            df[col] = 0
+
+    df = df[required_cols]
+
+    df_scaled = scaler.transform(df)
+    df_scaled = pd.DataFrame(df_scaled, columns=required_cols)
+
+    return df_scaled
 
 if __name__ == "__main__":
     preprocess()
