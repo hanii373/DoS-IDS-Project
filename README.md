@@ -35,57 +35,90 @@ This project includes:
 ## Project Architecture
 
 DoS-IDS-Project/
+
 │
 
-├── main.py # Main control panel
+├── main.py                # Main control panel (menu-based launcher)
 
-├── main_real.py # Real attack replay
+├── main_real.py           # Real-traffic simulation runner (JSON scenarios)
+
+├── requirements.txt
 
 ├── README.md
 
-├── models/ # Trained ML model & scaler
+├── .gitignore
 
 │
 
-├── src/
+├── models/
 
-│ ├── predictor.py # ML prediction logic
+│   ├── baseline_model.joblib   # Trained Random Forest model
 
-│ ├── preprocess.py # Feature preprocessing
+│   └── scaler.pkl              # Scaler for feature normalization
 
-│ ├── simulator.py # Traffic simulator (parallel)
+│
 
-│ ├── sniffer.py # Live packet sniffer
-
-│ │
-
-│ ├── eventsystem/ # Event-driven architecture
-
-│ │ ├── events.py
-
-│ │ ├── logger.py
-
-│ │ ├── alerter.py
-
-│ │ ├── mitigator.py
-
-│ │ └── observers/
-
-│ │
-
-│ └── dashboard/
-
-│ └── app.py # Streamlit dashboard
+├── data/                       # (Not pushed to GitHub – large datasets)
 
 │
 
 ├── logs/
 
-│ └── alerts.log
+│   └── alerts.log              # Attack logs used by dashboard
 
 │
 
-└── attacks/ # Sample attack scenarios
+├── attacks/
+
+│   ├── sample_dos.json
+
+│   ├── sample_probe.json
+
+│   ├── sample_anomaly.json
+
+│   └── scenario_mixed.json
+
+│
+
+├── src/
+
+│   ├── predictor.py            # Core ML prediction logic
+
+│   ├── preprocess.py           # Feature preprocessing (runtime)
+
+│   ├── simulator.py            # Traffic simulator (parallel + limited duration)
+
+│   ├── sniffer.py               # Real network packet sniffer (Scapy + Npcap)
+
+│   │
+
+│   ├── dashboard/
+
+│   │   └── app.py               # Streamlit dashboard UI
+
+│   │
+
+│   └── eventsystem/
+
+│       ├── events.py            # EventManager (publish/subscribe)
+
+│       ├── observer.py          # Base Observer class
+
+│       ├── logger.py            # AttackLogger (writes logs)
+
+│       ├── alerter.py            # Popup alerts (Plyer)
+
+│       ├── mitigator.py          # Mitigation logic (placeholder / basic)
+
+│       ├── observer_probe.py     # Probe-specific observer
+
+│       ├── observer_anomaly.py   # Anomaly-specific observer
+
+│       └── observer_highrisk.py  # High-risk attack observer
+
+│
+
+└── .venv/                       # Virtual environment
 
 ---
 
