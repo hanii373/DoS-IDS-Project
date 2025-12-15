@@ -38,9 +38,9 @@ DoS-IDS-Project/
 
 │
 
-├── main.py                # Main control panel (menu-based launcher)
+├── main.py                  ( Main control panel (menu-based launcher))
 
-├── main_real.py           # Real-traffic simulation runner (JSON scenarios)
+├── main_real.py           (Real-traffic simulation runner (JSON scenarios))
 
 ├── requirements.txt
 
@@ -52,19 +52,19 @@ DoS-IDS-Project/
 
 ├── models/
 
-│   ├── baseline_model.joblib   # Trained Random Forest model
+│   ├── baseline_model.joblib   (Trained Random Forest model)
 
-│   └── scaler.pkl              # Scaler for feature normalization
+│   └── scaler.pkl              (Scaler for feature normalization)
 
 │
 
-├── data/                       # (Not pushed to GitHub – large datasets)
+├── data/                       (Not pushed to GitHub – large datasets)
 
 │
 
 ├── logs/
 
-│   └── alerts.log              # Attack logs used by dashboard
+│   └── alerts.log              (Attack logs used by dashboard)
 
 │
 
@@ -82,43 +82,43 @@ DoS-IDS-Project/
 
 ├── src/
 
-│   ├── predictor.py            # Core ML prediction logic
+│   ├── predictor.py            (Core ML prediction logic)
 
-│   ├── preprocess.py           # Feature preprocessing (runtime)
+│   ├── preprocess.py           (Feature preprocessing (runtime))
 
-│   ├── simulator.py            # Traffic simulator (parallel + limited duration)
+│   ├── simulator.py            (Traffic simulator (parallel + limited duration))
 
-│   ├── sniffer.py               # Real network packet sniffer (Scapy + Npcap)
+│   ├── sniffer.py               (Real network packet sniffer (Scapy + Npcap))
 
 │   │
 
 │   ├── dashboard/
 
-│   │   └── app.py               # Streamlit dashboard UI
+│   │   └── app.py               (Streamlit dashboard UI)
 
 │   │
 
 │   └── eventsystem/
 
-│       ├── events.py            # EventManager (publish/subscribe)
+│       ├── events.py            (EventManager (publish/subscribe))
 
-│       ├── observer.py          # Base Observer class
+│       ├── observer.py          (Base Observer class)
 
-│       ├── logger.py            # AttackLogger (writes logs)
+│       ├── logger.py            (AttackLogger (writes logs))
 
-│       ├── alerter.py            # Popup alerts (Plyer)
+│       ├── alerter.py            (Popup alerts (Plyer))
 
-│       ├── mitigator.py          # Mitigation logic (placeholder / basic)
+│       ├── mitigator.py          (Mitigation logic (placeholder / basic))
 
-│       ├── observer_probe.py     # Probe-specific observer
+│       ├── observer_probe.py     (Probe-specific observer)
 
-│       ├── observer_anomaly.py   # Anomaly-specific observer
+│       ├── observer_anomaly.py   (Anomaly-specific observer)
 
-│       └── observer_highrisk.py  # High-risk attack observer
+│       └── observer_highrisk.py  (High-risk attack observer)
 
 │
 
-└── .venv/                       # Virtual environment
+└── .venv/                       (Virtual environment)
 
 ---
 
