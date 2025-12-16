@@ -122,7 +122,7 @@ DoS-IDS-Project/
 
 ---
 
-## 🧠 Detection Types
+##  Detection Types
 
 | Type     | Description |
 |--------|-------------|
